@@ -1,12 +1,40 @@
 from __future__ import annotations
 
 import typing as t
+from enum import Enum
 from threading import local
 
 if t.TYPE_CHECKING:
     from .core import Context
 
 _local = local()
+
+
+class ColorPolicy(Enum):
+    """
+    The color policy for a context.
+    """
+    
+    ALWAYS_KEEP = "always"
+    ALWAYS_STRIP = "never"
+    AUTO = "auto"
+
+
+# default is auto
+_color_policy = ColorPolicy.AUTO
+
+
+def set_color_policy(color_policy: ColorPolicy) -> None:
+    """Sets global color policy"""
+
+    global _color_policy
+    _color_policy = color_policy
+
+
+def get_color_policy() -> ColorPolicy:
+    """Returns the global color policy"""
+
+    return _color_policy
 
 
 @t.overload
