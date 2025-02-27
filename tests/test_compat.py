@@ -56,3 +56,7 @@ def test_color_policy_always_strip():
     assert should_strip_ansi(stream=JupyterKernelFakeStream()) == True
 
     set_color_policy(ColorPolicy.AUTO)
+
+
+def test_no_stream():
+    assert should_strip_ansi(stream=None) == True
