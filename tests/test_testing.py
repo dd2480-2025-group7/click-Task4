@@ -450,3 +450,14 @@ def test_isolation_stderr_errors():
         click.echo("\udce2", err=True, nl=False)
 
     assert err.getvalue() == b"\\udce2"
+
+def test_exception_message_plain_text_color():
+    """Base Exception message should be plain text after changing foreground color."""
+    exception = click.ClickException(click.style('red', fg='red') + ' text')
+    assert 'red text' in str(exception) 
+
+def test_exception_message_plain_text_style():
+    """Base Exception message should be plain text after adding some text styling."""
+    exception = click.ClickException(click.style('red', bold=True, underline=True) + ' text')
+    assert 'red text' in str(exception) 
+

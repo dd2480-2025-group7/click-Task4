@@ -4,6 +4,7 @@ import collections.abc as cabc
 import typing as t
 from gettext import gettext as _
 from gettext import ngettext
+import re
 
 from ._compat import get_text_stderr
 from .globals import resolve_color_default
@@ -39,8 +40,15 @@ class ClickException(Exception):
     def format_message(self) -> str:
         return self.message
 
+    # The message is in ansi (containing lots of different characters), so 
+    # we must convert the ansi to plain text so that the returned message is 
+    # easy to read and understand. Clean output gives easier testing.
     def __str__(self) -> str:
-        return self.message
+        # regex pattern to match ANSI escape codes
+        ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        # finds all occurrences of the ANSI escape codes in self.message and replaces them with an empty string
+        message_string = ansi_escape.sub('', self.message)
+        return message_string
 
     def show(self, file: t.IO[t.Any] | None = None) -> None:
         if file is None:
