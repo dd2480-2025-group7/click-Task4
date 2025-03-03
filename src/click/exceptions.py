@@ -10,6 +10,7 @@ from ._compat import get_text_stderr
 from .globals import resolve_color_default
 from .utils import echo
 from .utils import format_filename
+from ._compat import strip_ansi
 
 if t.TYPE_CHECKING:
     from .core import Command
@@ -44,11 +45,7 @@ class ClickException(Exception):
     # we must convert the ansi to plain text so that the returned message is 
     # easy to read and understand. Clean output gives easier testing.
     def __str__(self) -> str:
-        # regex pattern to match ANSI escape codes
-        ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
-        # finds all occurrences of the ANSI escape codes in self.message and replaces them with an empty string
-        message_string = ansi_escape.sub('', self.message)
-        return message_string
+        return strip_ansi(self.message)
 
     def show(self, file: t.IO[t.Any] | None = None) -> None:
         if file is None:
