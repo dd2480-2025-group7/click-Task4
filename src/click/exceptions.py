@@ -41,9 +41,7 @@ class ClickException(Exception):
     def format_message(self) -> str:
         return self.message
 
-    # The message is in ansi (containing lots of different characters), so 
-    # we must convert the ansi to plain text so that the returned message is 
-    # easy to read and understand. Clean output gives easier testing.
+    # Removes the ansi-encoding of the message
     def __str__(self) -> str:
         return strip_ansi(self.message)
 
