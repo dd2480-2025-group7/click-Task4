@@ -1879,7 +1879,7 @@ class Group(Command):
             possibility_str = ", ".join(sorted(possibilities))
             suggest = ngettext(
                 "Did you mean {possibility}?",
-                "(Possible options: {possibilities})",
+                "(Possible commands: {possibilities})",
                 len(possibilities),
             ).format(possibility=possibility_str, possibilities=possibility_str)
             message = f"{message} {suggest}" if possibilities else message
