@@ -450,3 +450,20 @@ def test_isolation_stderr_errors():
         click.echo("\udce2", err=True, nl=False)
 
     assert err.getvalue() == b"\\udce2"
+
+def test_exception_str_plain_text_color():
+    """Base Exception str should be plain text after changing foreground color."""
+    exception = click.ClickException(click.style('red', fg='red') + ' text')
+    assert 'red text' in str(exception) 
+
+def test_exception_str_plain_text_style():
+    """Base Exception str should be plain text after adding some text styling."""
+    exception = click.ClickException(click.style('not red', bold=True, underline=True) + ' text but bold')
+    assert 'not red text' in str(exception) 
+
+def test_exception_message_keeps_encoding():
+    """Base exception message should preserve the ansi-encoded formatting."""
+    exception = click.ClickException(click.style('blue', fg = 'blue', bold = True) + " color preserved")
+    assert '\\x1b[34m\\x1b[1mblue\\x1b[0m' in repr(exception.message) #repr preserves the ansi-encoding
+
+

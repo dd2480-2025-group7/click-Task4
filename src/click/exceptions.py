@@ -9,6 +9,7 @@ from ._compat import get_text_stderr
 from .globals import resolve_color_default
 from .utils import echo
 from .utils import format_filename
+from ._compat import strip_ansi
 
 if t.TYPE_CHECKING:
     from .core import Command
@@ -39,8 +40,9 @@ class ClickException(Exception):
     def format_message(self) -> str:
         return self.message
 
+    # Removes the ansi-encoding of the message
     def __str__(self) -> str:
-        return self.message
+        return strip_ansi(self.message)
 
     def show(self, file: t.IO[t.Any] | None = None) -> None:
         if file is None:
