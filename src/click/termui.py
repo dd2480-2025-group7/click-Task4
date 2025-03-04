@@ -13,6 +13,7 @@ from ._compat import isatty
 from ._compat import strip_ansi
 from .exceptions import Abort
 from .exceptions import UsageError
+from .exceptions import BadParameter
 from .globals import resolve_color_default
 from .types import Choice
 from .types import convert_type
@@ -174,7 +175,7 @@ def prompt(
         try:
             result = value_proc(value)
         except UsageError as e:
-            if hide_input:
+            if hide_input and not isinstance(e, BadParameter):  # If type is BadParameter, show custom error message instead
                 echo(_("Error: The value you entered was invalid."), err=err)
             else:
                 echo(_("Error: {e.message}").format(e=e), err=err)
