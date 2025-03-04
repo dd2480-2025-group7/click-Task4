@@ -4,7 +4,6 @@ import collections.abc as cabc
 import typing as t
 from gettext import gettext as _
 from gettext import ngettext
-import re
 
 from ._compat import get_text_stderr
 from .globals import resolve_color_default
