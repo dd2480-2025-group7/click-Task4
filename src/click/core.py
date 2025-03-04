@@ -1872,7 +1872,18 @@ class Group(Command):
         if cmd is None and not ctx.resilient_parsing:
             if _split_opt(cmd_name)[0]:
                 self.parse_args(ctx, args)
-            ctx.fail(_("No such command {name!r}.").format(name=original_cmd_name))
+            from difflib import get_close_matches
+
+            possibilities = get_close_matches(original_cmd_name, self.list_commands(ctx))
+            message = _("No such command {name!r}.").format(name=original_cmd_name)
+            possibility_str = ", ".join(sorted(possibilities))
+            suggest = ngettext(
+                "Did you mean {possibility}?",
+                "(Possible commands: {possibilities})",
+                len(possibilities),
+            ).format(possibility=possibility_str, possibilities=possibility_str)
+            message = f"{message} {suggest}" if possibilities else message
+            ctx.fail(message)
         return cmd_name if cmd else None, cmd, args[1:]
 
     def shell_complete(self, ctx: Context, incomplete: str) -> list[CompletionItem]:

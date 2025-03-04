@@ -413,3 +413,56 @@ def test_abort_exceptions_with_disabled_standalone_mode(runner, exc):
     assert rv.exit_code == 1
     assert isinstance(rv.exception.__cause__, exc)
     assert rv.exception.__cause__.args == ("catch me!",)
+
+def test_command_suggestions_matches_found(runner):
+    @click.group()
+    def cli():
+        pass
+
+    @cli.command()
+    @click.option("--name", default="World", help="Name of the person to greet.")
+    def hello(name):
+        click.echo(f"Hello, {name}!")
+
+    @cli.command()
+    def goodbye():
+        click.echo("Goodbye!")
+
+    result = runner.invoke(cli, ["hellow"])
+    assert result.exit_code == 2
+    assert "No such command 'hellow'." in result.output
+    assert "Did you mean hello?" in result.output
+
+def test_command_suggestions_no_matches(runner):
+    @click.group()
+    def cli():
+        pass
+
+    @cli.command()
+    def hello():
+        click.echo("Hello!")
+
+    result = runner.invoke(cli, ["xyz"])
+    assert result.exit_code == 2
+    assert "No such command 'xyz'." in result.output
+    assert "Did you mean" not in result.output
+
+def test_command_suggestions_multiple_matches(runner):
+    @click.group()
+    def cli():
+        pass
+
+    @cli.command()
+    @click.option("--name", default="World", help="Name of the person to greet.")
+    def hello(name):
+        click.echo(f"Hello, {name}!")
+
+    @cli.command()
+    @click.option("--name", default="World", help="Name of the person to greet.")
+    def hallo(name):
+        click.echo(f"Hello, {name}!")
+
+    result = runner.invoke(cli, ["hellow"])
+    assert result.exit_code == 2
+    assert "No such command 'hellow'." in result.output
+    assert "(Possible commands: hallo, hello)" in result.output
