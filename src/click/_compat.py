@@ -499,11 +499,22 @@ def _is_jupyter_kernel_output(stream: t.IO[t.Any]) -> bool:
 def should_strip_ansi(
     stream: t.IO[t.Any] | None = None, color: bool | None = None
 ) -> bool:
-    if color is None:
+    from .globals import get_color_policy, ColorPolicy
+
+    cp = get_color_policy()
+
+    if color is not None:
+        return not color
+
+    if cp == ColorPolicy.AUTO:
         if stream is None:
             stream = sys.stdin
         return not isatty(stream) and not _is_jupyter_kernel_output(stream)
-    return not color
+    elif cp == ColorPolicy.ALWAYS_KEEP:
+        return False
+
+    elif cp == ColorPolicy.ALWAYS_STRIP:
+        return True
 
 
 # On Windows, wrap the output streams with colorama to support ANSI
