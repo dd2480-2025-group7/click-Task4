@@ -1884,9 +1884,6 @@ class Group(Command):
             ).format(possibility=possibility_str, possibilities=possibility_str)
             message = f"{message} {suggest}" if possibilities else message
             ctx.fail(message)
-            
-        
-        
         return cmd_name if cmd else None, cmd, args[1:]
 
     def shell_complete(self, ctx: Context, incomplete: str) -> list[CompletionItem]:
