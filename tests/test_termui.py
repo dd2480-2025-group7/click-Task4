@@ -485,3 +485,61 @@ def test_false_show_default_cause_no_default_display_in_prompt(runner):
     # is False
     result = runner.invoke(cmd, input="my-input", standalone_mode=False)
     assert "my-default-value" not in result.output
+
+# Confirm that custom error message is displayed when Hide_Input=True
+def test_custom_error_message(runner):
+    class PassRequirement(click.ParamType):
+        name = "Password requirements"
+
+        def convert(self, value, param, ctx):
+            pw_req = "Minimum eight characters, at least one letter and one number"
+            pw_strength = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+            import re
+            if re.match(pw_strength, value):
+                return value
+
+            self.fail(f"Your password is weak. Use {pw_req!r}", param, ctx)
+
+        def fail(self, message="", param=None, ctx=None):
+            raise click.BadParameter(message, ctx, param)
+
+    PASS_REQUIREMENT = PassRequirement()
+
+    @click.command()
+    @click.option("--password", help="Password", hide_input=True, type=PASS_REQUIREMENT)
+    def cli(password):
+        pass
+
+    result = runner.invoke(cli, ["--password", "1234"])
+
+    assert "Your password is weak. Use" in result.output
+    assert "Minimum eight characters, at least one letter and one number" in result.output
+
+# Confirm that custom error message is NOT displayed when password is strong
+def test_custom_error_message_password(runner):
+    class PassRequirement(click.ParamType):
+        name = "Password requirements"
+
+        def convert(self, value, param, ctx):
+            pw_req = "Minimum eight characters, at least one letter and one number"
+            pw_strength = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+            import re
+            if re.match(pw_strength, value):
+                return value
+
+            self.fail(f"Your password is weak. Use {pw_req!r}", param, ctx)
+
+        def fail(self, message="", param=None, ctx=None):
+            raise click.BadParameter(message, ctx, param)
+
+    PASS_REQUIREMENT = PassRequirement()
+
+    @click.command()
+    @click.option("--password", help="Password", hide_input=True, type=PASS_REQUIREMENT)
+    def cli(password):
+        pass
+
+    result = runner.invoke(cli, ["--password", "1234Trying"])
+
+    assert "Your password is weak. Use" not in result.output
+    assert "Minimum eight characters, at least one letter and one number" not in result.output
